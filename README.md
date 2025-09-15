@@ -1,406 +1,133 @@
-# PowerShell MCP Server - Installation & Usage Guide
+# Project Creator MCP
 
 ## Overview
 
-This PowerShell MCP (Model Context Protocol) Server provides secure PowerShell execution capabilities for Claude Desktop and other MCP clients. It's designed specifically for local development tasks with comprehensive security measures.
+`project-creator-mcp` is a command-line tool designed to streamline the creation of new project structures from a collection of predefined templates. It helps developers quickly set up the boilerplate for various types of applications, including web frontends, backends, and full-stack projects. This project also functions as an MCP (Model Context Protocol) server, allowing integration with MCP clients like Claude Desktop for enhanced interactive development.
+
+## Features
+
+*   **Multiple Project Templates**: Supports a variety of popular project types (e.g., Blazor, HTML/JS/CSS, Next.js, Node.js/Express, Django, FastAPI, Flask, React).
+*   **Easy Project Generation**: Simple command-line interface to select a template and create a new project.
+*   **Extensible**: Easily add new project templates to expand the tool's capabilities.
+*   **MCP Server**: Exposes a set of tools via the Model Context Protocol for programmatic interaction.
 
 ## Prerequisites
 
 Before installation, ensure you have:
 
-- **Python 3.8+** installed and accessible via `python` command
-- **pip** (Python package installer)
-- **PowerShell** (Windows PowerShell 5.1+ or PowerShell Core 7+)
-- **Claude Desktop** (if using with Claude)
-
-### Optional Development Tools
-- **Node.js & npm** (for Node.js/JavaScript development)
-- **Git** (for version control operations)
-- **Linting tools** (ESLint, Prettier, PyLint, etc.)
+*   **Python 3.8+** installed and accessible via `python` command
+*   **pip** (Python package installer)
+*   **Claude Desktop** (if using with Claude or other MCP clients)
 
 ## Installation
 
-### Method 1: Automated Setup (Recommended)
-
-1. **Download the setup script** and save as `setup_powershell_mcp.ps1`
-
-2. **Run the setup script**:
-   ```powershell
-   # Run with default settings
-   .\setup_powershell_mcp.ps1
-   
-   # Custom installation directory
-   .\setup_powershell_mcp.ps1 -InstallDir "C:\MyTools\powershell-mcp"
-   
-   # Skip Claude Desktop configuration
-   .\setup_powershell_mcp.ps1 -SkipClaudeConfig
-   ```
-
-3. **Copy the server code**: Save the PowerShell MCP Server code (from the first artifact) as `powershell_mcp_server.py` in your installation directory.
-
-### Method 2: Manual Installation
-
-1. **Create project directory**:
-   ```powershell
-   mkdir powershell-mcp
-   cd powershell-mcp
-   ```
-
-2. **Create virtual environment**:
-   ```powershell
-   python -m venv venv
-   .\venv\Scripts\Activate.ps1
-   ```
-
-3. **Install dependencies**:
-   ```powershell
-   pip install mcp pydantic
-   ```
-
-4. **Save the server files**:
-   - Save the PowerShell MCP Server code as `powershell_mcp_server.py`
-   - Create `requirements.txt` with the dependencies
-
-5. **Configure Claude Desktop** (see Configuration section below)
-
-## Configuration
-
-### Claude Desktop Configuration
-
-1. **Locate your Claude Desktop configuration file**:
-   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-
-2. **Add the MCP server configuration**:
-   ```json
-   {
-     "mcpServers": {
-       "powershell-mcp": {
-         "command": "python",
-         "args": ["C:\\path\\to\\your\\powershell_mcp_server.py"],
-         "env": {
-           "PATH": "your-system-path-here"
-         }
-       }
-     }
-   }
-   ```
-
-3. **Restart Claude Desktop** to load the new server
-
-### Security Configuration
-
-The server includes built-in security measures that can be customized by editing the `SecurityConfig` class:
-
-#### Allowed Commands
-```python
-ALLOWED_COMMANDS = {
-    # File operations
-    'New-Item', 'Remove-Item', 'Copy-Item', 'Move-Item',
-    'Get-ChildItem', 'Get-Content', 'Set-Content',
-    
-    # Development tools
-    'node', 'npm', 'npx', 'yarn', 'git', 'python',
-    
-    # Linting tools
-    'eslint', 'prettier', 'pylint', 'black',
-    
-    # Add more as needed...
-}
-```
-
-#### Blocked Patterns
-```python
-BLOCKED_PATTERNS = [
-    r'Invoke-Expression',  # Prevents arbitrary code execution
-    r'Start-Process.*-Verb\s+RunAs',  # Prevents elevation
-    r'Format-Volume',  # Prevents disk formatting
-    # Add more security patterns...
-]
-```
-
-#### Restricted Paths
-```python
-RESTRICTED_PATHS = [
-    r'C:\\Windows\\System32',
-    r'C:\\Program Files',
-    # System directories are protected...
-]
-```
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-username/project-creator-mcp.git
+    cd project-creator-mcp
+    ```
+2.  **Create a virtual environment** (recommended):
+    ```bash
+    python -m venv venv
+    # On Windows:
+    .\venv\Scripts\Activate.ps1
+    # On macOS/Linux:
+    source venv/bin/activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## Usage
 
-### Starting the Server
+### Running as an MCP Server
 
-```powershell
-# Using the launcher (if created by setup script)
-.\launch_server.ps1
+The `project_builder.py` script is designed to be run as an MCP server, allowing MCP clients (like Claude Desktop) to interact with its exposed tools programmatically.
 
-# Or directly with Python
-python powershell_mcp_server.py
+To start the MCP server:
 
-# Or with virtual environment
-.\venv\Scripts\python.exe powershell_mcp_server.py
+```bash
+# Ensure your virtual environment is activated if you created one
+python project_builder.py
 ```
 
-### Available Tools
+The server will start and listen for MCP client connections.
 
-#### 1. execute_powershell
-Execute PowerShell commands safely.
+### Claude Desktop Configuration
 
-**Parameters:**
-- `command` (required): The PowerShell command to execute
-- `timeout` (optional): Timeout in seconds (default: 30)
+1.  **Locate your Claude Desktop configuration file**:
+    *   **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+    *   **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 
-**Example:**
-```json
-{
-  "name": "execute_powershell",
-  "arguments": {
-    "command": "Get-ChildItem *.js | Measure-Object",
-    "timeout": 60
-  }
-}
-```
+2.  **Add the MCP server configuration**:
+    Add an entry under `"mcpServers"` in your `claude_desktop_config.json`. Replace `/path/to/your/project-creator-mcp/project_builder.py` with the actual absolute path to the `project_builder.py` file in your cloned repository.
 
-#### 2. create_file
-Create a new file with specified content.
+    ```json
+    {
+      "mcpServers": {
+        "project-creator-mcp": {
+          "command": "python",
+          "args": ["/path/to/your/project-creator-mcp/project_builder.py"],
+          "env": {
+            "PYTHONUNBUFFERED": "1"
+          }
+        }
+      }
+    }
+    ```
+    *Note: The `PYTHONUNBUFFERED: "1"` environment variable is often helpful for ensuring real-time output from Python processes in some environments.*
 
-**Parameters:**
-- `path` (required): File path to create
-- `content` (required): Content to write
-- `encoding` (optional): File encoding (default: utf-8)
+3.  **Restart Claude Desktop** to load the new server.
 
-**Example:**
-```json
-{
-  "name": "create_file",
-  "arguments": {
-    "path": "package.json",
-    "content": "{\n  \"name\": \"my-project\",\n  \"version\": \"1.0.0\"\n}"
-  }
-}
-```
+## Available MCP Tools
 
-#### 3. read_file
-Read the contents of a file.
+This MCP server exposes the following tools:
 
-**Parameters:**
-- `path` (required): File path to read
-- `encoding` (optional): File encoding (default: utf-8)
+### File System Tools (`file_system_tools.py`)
 
-#### 4. create_directory
-Create a new directory.
+*   **`create_file(path: str, content: str, overwrite: bool = False)`**: Create a file with specified content.
+*   **`read_file(path: str)`**: Read file contents.
+*   **`create_directory(path: str)`**: Create a directory.
+*   **`list_directory(path: str = ".")`**: List directory contents with detailed information.
+*   **`copy_file_or_directory(source: str, destination: str)`**: Copy a file or directory to a new location.
+*   **`search_and_replace_in_file(file_path: str, search_pattern: str, replacement: str, use_regex: bool = False)`**: Search and replace text in a file.
 
-**Parameters:**
-- `path` (required): Directory path to create
+### Project Management Tools (`project_management_tools.py`)
 
-#### 5. list_directory
-List contents of a directory.
+*   **`create_project_from_template(template_name: str, project_name: str, project_path: str = ".")`**: Create a new project from a predefined template.
+    *   `template_name`: Name of the template (e.g., "react-typescript", "node-express-api").
+    *   `project_name`: Name for the new project.
+    *   `project_path`: Directory where project should be created (default: current directory).
+*   **`create_project_structure(project_name: str, structure: Dict[str, Union[str, Dict]], base_path: str = ".")`**: Create a custom project structure from a nested dictionary.
+*   **`get_project_info(path: str = ".")`**: Get information about a project directory.
+*   **`list_available_templates()`**: List all available project templates.
 
-**Parameters:**
-- `path` (optional): Directory to list (default: current)
-- `recursive` (optional): List recursively (default: false)
+### Command Execution Tools (`command_execution_tools.py`)
 
-#### 6. run_npm_command
-Run npm commands safely.
+*   **`run_npm_command(command: str, cwd: str = ".")`**: Execute npm commands safely.
+*   **`run_python_command(command: str, cwd: str = ".")`**: Execute Python commands safely (pip, python scripts, etc.).
+*   **`run_command(command: str, cwd: str = ".")`**: Generic command runner, dispatches to `run_python_command`.
+*   **`initialize_git_repository(path: str = ".")`**: Initialize a Git repository in the specified directory.
 
-**Parameters:**
-- `command` (required): npm command (e.g., "install", "run build")
-- `directory` (optional): Directory to run in (default: current)
+## Available Templates
 
-**Example:**
-```json
-{
-  "name": "run_npm_command",
-  "arguments": {
-    "command": "install --save-dev eslint",
-    "directory": "./my-project"
-  }
-}
-```
+The following templates are currently available:
 
-#### 7. run_node_script
-Run a Node.js script.
+*   `blazor_dotnet`: A basic Blazor .NET web application.
+*   `html_js_css_separate_files`: A simple web project with separate HTML, JavaScript, and CSS files.
+*   `html_js_css_single_file`: A simple web project with HTML, JavaScript, and CSS all in one file.
+*   `nextjs_shadcn_tailwind`: A Next.js project configured with Shadcn UI and Tailwind CSS.
+*   `node_express_api`: A basic Node.js Express API project.
+*   `python_django`: A basic Django project structure.
+*   `python_fastapi`: A basic FastAPI project.
+*   `python_flask`: A basic Flask web application with a simple template.
+*   `react_typescript`: A React project set up with TypeScript.
 
-**Parameters:**
-- `script` (required): Script file to run
-- `args` (optional): Arguments to pass
-- `directory` (optional): Directory to run in
+## Adding New Templates
 
-#### 8. lint_files
-Run linting tools on files.
+For instructions on how to add your own custom project templates, please refer to the `Adding New Templates.md` file.
 
-**Parameters:**
-- `tool` (required): Linting tool (eslint, prettier, pylint, black, flake8, mypy)
-- `target` (optional): Files/directory to lint (default: current)
-- `fix` (optional): Auto-fix issues (default: false)
+## Contributing
 
-**Example:**
-```json
-{
-  "name": "lint_files",
-  "arguments": {
-    "tool": "eslint",
-    "target": "src/",
-    "fix": true
-  }
-}
-```
-
-#### 9. get_working_directory
-Get the current working directory.
-
-#### 10. change_directory
-Change the working directory.
-
-**Parameters:**
-- `path` (required): Directory to change to
-
-## Common Development Workflows
-
-### Setting Up a New Node.js Project
-
-1. **Create project directory**:
-   ```json
-   {"name": "create_directory", "arguments": {"path": "my-new-project"}}
-   ```
-
-2. **Change to project directory**:
-   ```json
-   {"name": "change_directory", "arguments": {"path": "my-new-project"}}
-   ```
-
-3. **Initialize package.json**:
-   ```json
-   {"name": "run_npm_command", "arguments": {"command": "init -y"}}
-   ```
-
-4. **Install dependencies**:
-   ```json
-   {"name": "run_npm_command", "arguments": {"command": "install express"}}
-   ```
-
-5. **Create main file**:
-   ```json
-   {
-     "name": "create_file",
-     "arguments": {
-       "path": "index.js",
-       "content": "const express = require('express');\nconst app = express();\n\napp.get('/', (req, res) => {\n  res.send('Hello World!');\n});\n\napp.listen(3000, () => {\n  console.log('Server running on port 3000');\n});"
-     }
-   }
-   ```
-
-### Code Quality Workflow
-
-1. **Install linting tools**:
-   ```json
-   {"name": "run_npm_command", "arguments": {"command": "install --save-dev eslint prettier"}}
-   ```
-
-2. **Run linting**:
-   ```json
-   {"name": "lint_files", "arguments": {"tool": "eslint", "target": "."}}
-   ```
-
-3. **Fix linting issues**:
-   ```json
-   {"name": "lint_files", "arguments": {"tool": "eslint", "target": ".", "fix": true}}
-   ```
-
-4. **Format code**:
-   ```json
-   {"name": "lint_files", "arguments": {"tool": "prettier", "target": ".", "fix": true}}
-   ```
-
-## Troubleshooting
-
-### Server Connection Issues
-
-1. **Check Claude Desktop logs**:
-   - Windows: `%APPDATA%\Claude\logs\mcp.log`
-   - macOS: `~/Library/Logs/Claude/mcp.log`
-
-2. **Verify Python path** in configuration
-3. **Ensure all dependencies are installed**
-4. **Check file permissions** on the server script
-
-### Command Execution Issues
-
-1. **"Command not in allowed list"**: Add the command to `ALLOWED_COMMANDS` in `SecurityConfig`
-2. **"Command contains blocked pattern"**: Review the command for security issues
-3. **"Path is restricted"**: Ensure you're not accessing system directories
-4. **Timeout errors**: Increase the timeout parameter for long-running commands
-
-### Common Error Messages
-
-- **"Security validation failed"**: The command or path failed security checks
-- **"Command timed out"**: The command took longer than the specified timeout
-- **"Working directory validation failed"**: The current directory is restricted
-- **"Error creating file"**: Check file permissions and path validity
-
-## Security Best Practices
-
-1. **Regularly review** the allowed commands list
-2. **Monitor logs** for suspicious activity
-3. **Use timeouts** to prevent long-running processes
-4. **Keep the server updated** with security patches
-5. **Run with minimal privileges** - don't run as administrator
-6. **Validate all inputs** before processing
-7. **Use virtual environments** to isolate dependencies
-
-## Extending the Server
-
-### Adding New Tools
-
-1. **Create a new tool handler**:
-   ```python
-   async def _my_new_tool(self, arguments: dict) -> CallToolResult:
-       # Implementation here
-       pass
-   ```
-
-2. **Add tool to the list**:
-   ```python
-   Tool(
-       name="my_new_tool",
-       description="Description of what it does",
-       inputSchema={...}
-   )
-   ```
-
-3. **Add to the call handler**:
-   ```python
-   elif name == "my_new_tool":
-       return await self._my_new_tool(arguments)
-   ```
-
-### Adding Security Rules
-
-1. **Extend ALLOWED_COMMANDS**:
-   ```python
-   ALLOWED_COMMANDS = {
-       # Existing commands...
-       'my-new-command',
-   }
-   ```
-
-2. **Add blocking patterns**:
-   ```python
-   BLOCKED_PATTERNS = [
-       # Existing patterns...
-       r'dangerous-pattern',
-   ]
-   ```
-
-## Support and Contributing
-
-For issues, feature requests, or contributions:
-
-1. **Check logs** for detailed error information
-2. **Review security settings** for command restrictions
-3. **Test with simple commands** first
-4. **Document any custom modifications** you make
-
-Remember: This server is designed for development tasks. Always follow security best practices and never disable security features in production environments.
+Contributions are welcome! If you have suggestions for new templates, improvements, or bug fixes, please open an issue or submit a pull request.
