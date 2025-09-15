@@ -52,7 +52,11 @@ def create_project_from_template(
         "html-js-css-single-file": ProjectTemplates.HTML_JS_CSS_SINGLE_FILE,
         "html-js-css-separate-files": ProjectTemplates.HTML_JS_CSS_SEPARATE_FILES,
         "python-django": ProjectTemplates.PYTHON_DJANGO,
-        "python-flask": ProjectTemplates.PYTHON_FLASK
+        "python-flask": ProjectTemplates.PYTHON_FLASK,
+        "blazor-dotnet": ProjectTemplates.BLAZOR_DOTNET,
+        "vue-js": ProjectTemplates.VUE_JS,
+        "angular-typescript": ProjectTemplates.ANGULAR_TYPESCRIPT,
+        "go-gin-api": ProjectTemplates.GO_GIN_API
     }
     
     if template_name not in templates:
@@ -329,7 +333,11 @@ def list_available_templates() -> Dict[str, Any]:
         "html-js-css-single-file": ProjectTemplates.HTML_JS_CSS_SINGLE_FILE,
         "html-js-css-separate-files": ProjectTemplates.HTML_JS_CSS_SEPARATE_FILES,
         "python-django": ProjectTemplates.PYTHON_DJANGO,
-        "python-flask": ProjectTemplates.PYTHON_FLASK
+        "python-flask": ProjectTemplates.PYTHON_FLASK,
+        "blazor-dotnet": ProjectTemplates.BLAZOR_DOTNET,
+        "vue-js": ProjectTemplates.VUE_JS,
+        "angular-typescript": ProjectTemplates.ANGULAR_TYPESCRIPT,
+        "go-gin-api": ProjectTemplates.GO_GIN_API
     }
     
     template_list = []
