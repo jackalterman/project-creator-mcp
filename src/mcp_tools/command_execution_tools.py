@@ -206,6 +206,78 @@ def run_python_command(command: str, cwd: str = ".") -> Dict[str, Any]:
         }
 
 @mcp.tool()
+def run_go_command(command: str, cwd: str = ".") -> Dict[str, Any]:
+    """
+    Execute Go commands safely.
+    
+    Args:
+        command: Go command to run (e.g., 'mod tidy', 'run main.go', 'build')
+        cwd: Working directory (default: current directory)
+        
+    Returns:
+        Dictionary with command results
+    """
+    # Validate path safety
+    is_safe, message = is_safe_path(cwd)
+    if not is_safe:
+        return {
+            "success": False,
+            "error": f"Working directory blocked: {message}"
+        }
+    
+    # Check if cwd exists
+    if not os.path.isdir(cwd):
+        return {
+            "success": False,
+            "error": f"Working directory does not exist: {cwd}"
+        }
+    
+    # Validate Go command
+    allowed_go_commands = [
+        'mod', 'run', 'build', 'test', 'fmt', 'vet', 'get', 'install'
+    ]
+    
+    command_parts = command.split()
+    base_cmd = command_parts[0] if command_parts else ""
+
+    if base_cmd not in allowed_go_commands:
+        return {
+            "success": False,
+            "error": f"Go command not allowed: {base_cmd}",
+            "allowed_commands": allowed_go_commands
+        }
+    
+    try:
+        result = subprocess.run(
+            f"go {command}",
+            shell=True,
+            capture_output=True,
+            text=True,
+            cwd=cwd,
+            timeout=SecurityConfig.COMMAND_TIMEOUT * 2
+        )
+        
+        return {
+            "success": result.returncode == 0,
+            "output": result.stdout.strip(),
+            "error": result.stderr.strip() if result.stderr else None,
+            "return_code": result.returncode,
+            "command": f"go {command}",
+            "working_directory": cwd
+        }
+        
+    except subprocess.TimeoutExpired:
+        return {
+            "success": False,
+            "error": f"Go command timed out after {SecurityConfig.COMMAND_TIMEOUT * 2} seconds"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Failed to run Go command: {str(e)}"
+        }
+
+@mcp.tool()
 def run_command(command: str, cwd: str = ".") -> Dict[str, Any]:
     """
     Generic command runner, dispatches to run_python_command.

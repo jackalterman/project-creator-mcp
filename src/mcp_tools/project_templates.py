@@ -78,3 +78,21 @@ class ProjectTemplates:
         "description": "Web application using Blazor and .NET",
         "files": _load_template_files("blazor_dotnet")
     }
+
+    VUE_JS = {
+        "name": "Vue.js Application",
+        "description": "A basic Vue.js project with a single component.",
+        "files": _load_template_files("vue_js")
+    }
+
+    ANGULAR_TYPESCRIPT = {
+        "name": "Angular TypeScript Application",
+        "description": "A basic Angular project with TypeScript.",
+        "files": _load_template_files("angular_typescript")
+    }
+
+    GO_GIN_API = {
+        "name": "Go Gin API",
+        "description": "A basic Go API using the Gin web framework.",
+        "files": _load_template_files("go_gin_api")
+    }
