@@ -53,7 +53,6 @@ def create_project_from_template(
         "html-js-css-separate-files": ProjectTemplates.HTML_JS_CSS_SEPARATE_FILES,
         "python-django": ProjectTemplates.PYTHON_DJANGO,
         "python-flask": ProjectTemplates.PYTHON_FLASK,
-        "blazor-dotnet": ProjectTemplates.BLAZOR_DOTNET,
         "vue-js": ProjectTemplates.VUE_JS,
         "angular-typescript": ProjectTemplates.ANGULAR_TYPESCRIPT,
         "go-gin-api": ProjectTemplates.GO_GIN_API
@@ -334,7 +333,6 @@ def list_available_templates() -> Dict[str, Any]:
         "html-js-css-separate-files": ProjectTemplates.HTML_JS_CSS_SEPARATE_FILES,
         "python-django": ProjectTemplates.PYTHON_DJANGO,
         "python-flask": ProjectTemplates.PYTHON_FLASK,
-        "blazor-dotnet": ProjectTemplates.BLAZOR_DOTNET,
         "vue-js": ProjectTemplates.VUE_JS,
         "angular-typescript": ProjectTemplates.ANGULAR_TYPESCRIPT,
         "go-gin-api": ProjectTemplates.GO_GIN_API

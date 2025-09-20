@@ -72,12 +72,6 @@ class ProjectTemplates:
         "description": "Lightweight WSGI web application framework",
         "files": _load_template_files("python_flask")
     }
-    
-    BLAZOR_DOTNET = {
-        "name": "Blazor .NET",
-        "description": "Web application using Blazor and .NET",
-        "files": _load_template_files("blazor_dotnet")
-    }
 
     VUE_JS = {
         "name": "Vue.js Application",

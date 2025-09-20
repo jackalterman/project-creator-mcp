@@ -6,7 +6,7 @@
 
 ## Features
 
-*   **Multiple Project Templates**: Supports a variety of popular project types (e.g., Blazor, HTML/JS/CSS, Next.js, Node.js/Express, Django, FastAPI, Flask, React).
+*   **Multiple Project Templates**: Supports a variety of popular project types (e.g., HTML/JS/CSS, Next.js, Node.js/Express, Django, FastAPI, Flask, React).
 *   **Easy Project Generation**: Simple command-line interface to select a template and create a new project.
 *   **Extensible**: Easily add new project templates to expand the tool's capabilities.
 *   **MCP Server**: Exposes a set of tools via the Model Context Protocol for programmatic interaction.
@@ -114,7 +114,6 @@ This MCP server exposes the following tools:
 
 The following templates are currently available:
 
-*   `blazor_dotnet`: A basic Blazor .NET web application.
 *   `html_js_css_separate_files`: A simple web project with separate HTML, JavaScript, and CSS files.
 *   `html_js_css_single_file`: A simple web project with HTML, JavaScript, and CSS all in one file.
 *   `nextjs_shadcn_tailwind`: A Next.js project configured with Shadcn UI and Tailwind CSS.
