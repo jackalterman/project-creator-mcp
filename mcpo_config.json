@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "project-creator": {
+      "command": "python",
+      "args": ["project_builder.py"],
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}

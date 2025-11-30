@@ -7,7 +7,8 @@ from typing import Any, Dict, List, Union
 
 
 
-from .security import is_safe_path, get_file_extension, SecurityConfig
+from .security import is_safe_path, is_safe_filename, get_file_extension
+from src.config import SecurityConfig
 from .mcp_instance import mcp
 
 
@@ -31,6 +32,15 @@ def create_file(path: str, content: str, overwrite: bool = False) -> Dict[str, A
         return {
             "success": False,
             "error": f"Path blocked for security: {message}"
+        }
+    
+    # Validate filename safety
+    filename = os.path.basename(path)
+    is_safe, message = is_safe_filename(filename)
+    if not is_safe:
+        return {
+            "success": False,
+            "error": f"Invalid filename: {message}"
         }
     
     # Validate file extension
@@ -57,7 +67,8 @@ def create_file(path: str, content: str, overwrite: bool = False) -> Dict[str, A
             }
         
         # Create directory if it doesn't exist
-        os.makedirs(os.path.dirname(path), exist_ok=True)
+        if os.path.dirname(path):
+            os.makedirs(os.path.dirname(path), exist_ok=True)
         
         # Write file
         with open(path, 'w', encoding='utf-8') as f:
