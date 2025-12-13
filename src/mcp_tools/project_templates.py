@@ -144,3 +144,24 @@ class ProjectTemplates:
         "command": "python \"{templates_dir}/scripts/create_docker_compose.py\" {project_name} --type full-stack"
     }
 
+    TERRAFORM_EKS = {
+        "name": "Terraform AWS EKS",
+        "description": "Terraform configuration for AWS Elastic Kubernetes Service (EKS) with VPC, node groups, and auto-scaling",
+        "type": "command_based",
+        "command": "python \"{templates_dir}/scripts/create_terraform_eks.py\" {project_name}"
+    }
+
+    TERRAFORM_AKS = {
+        "name": "Terraform Azure AKS",
+        "description": "Terraform configuration for Azure Kubernetes Service (AKS) with VNet, monitoring, and auto-scaling",
+        "type": "command_based",
+        "command": "python \"{templates_dir}/scripts/create_terraform_aks.py\" {project_name}"
+    }
+
+    TERRAFORM_GKE = {
+        "name": "Terraform GCP GKE",
+        "description": "Terraform configuration for Google Kubernetes Engine (GKE) with VPC, private nodes, and Workload Identity",
+        "type": "command_based",
+        "command": "python \"{templates_dir}/scripts/create_terraform_gke.py\" {project_name}"
+    }
+

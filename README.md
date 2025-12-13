@@ -8,11 +8,12 @@ Whether you're building a simple HTML page, a full-stack web application, or a c
 
 ## Features
 
-*   **🚀 20+ Project Templates**: Pre-configured templates for popular frameworks and languages including React, Next.js, Vue, Angular, FastAPI, Flask, Django, Express, Go Gin, and more
+*   **🚀 23+ Project Templates**: Pre-configured templates for popular frameworks and languages including React, Next.js, Vue, Angular, FastAPI, Flask, Django, Express, Go Gin, and more
+*   **☁️ Infrastructure as Code**: Terraform templates for Kubernetes clusters (AWS EKS, Azure AKS, GCP GKE) with complete deployment workflows
 *   **🐳 Docker Support**: Templates for Dockerfiles and Docker Compose configurations (Python, Node.js, Go, full-stack setups)
 *   **🤖 AI-Native Interface**: Natural language project creation through MCP-compatible AI assistants
 *   **📁 File System Tools**: Create, read, copy, and manage files and directories programmatically
-*   **⚡ Command Execution**: Safe execution of npm, Python, and system commands with proper error handling
+*   **⚡ Command Execution**: Safe execution of npm, Python, Terraform, Docker, and system commands with proper error handling
 *   **🔧 Extensible**: Easily add custom templates using Python generator scripts
 *   **🎯 FastMCP Powered**: Built on FastMCP for optimal performance and developer experience
 
@@ -21,6 +22,8 @@ Whether you're building a simple HTML page, a full-stack web application, or a c
 *   **Python 3.8+** installed and accessible via `python` command
 *   **pip** (Python package installer)
 *   **Node.js and npm** (for JavaScript/TypeScript templates)
+*   **Terraform** (for Infrastructure as Code templates - optional)
+*   **Docker** (for Docker templates - optional)
 *   **MCP-compatible AI client** (Claude Desktop, Cline, or other MCP clients)
 
 ## Installation
@@ -157,6 +160,38 @@ Create it in D:\mcp\weather-mcp.
 Use the fast_mcp_node template.
 ```
 
+### Terraform / Infrastructure as Code
+
+```
+Create a Terraform configuration for deploying an AWS EKS cluster. 
+Use D:\terraform\eks-cluster. 
+After creation, initialize Terraform and run a plan to see what will be created.
+```
+
+```
+Build a complete Azure AKS infrastructure with Terraform. 
+Create it in C:\terraform\aks-production. 
+Set up the cluster with 3 nodes and auto-scaling enabled. 
+After creating the project, run terraform init and terraform plan.
+```
+
+```
+Create a GCP GKE cluster using Terraform. 
+Use D:\terraform\gke-cluster. 
+Configure it as a regional cluster with private nodes. 
+Initialize Terraform, run a plan, and if it looks good, apply it to deploy the cluster.
+```
+
+```
+Deploy a complete EKS cluster on AWS:
+1. Create the Terraform EKS project in C:\terraform\my-eks
+2. Customize the variables to use t3.large instances
+3. Initialize Terraform
+4. Review the plan
+5. Apply the configuration to create the cluster
+6. Once deployed, configure kubectl and verify the cluster is running
+```
+
 ### Advanced Workflows
 
 ```
@@ -206,6 +241,11 @@ Build a microservices architecture:
 *   **`docker_compose_simple`**: Simple Docker Compose with app and database
 *   **`docker_compose_full_stack`**: Full-stack Docker Compose (web, database, cache, nginx)
 
+### Infrastructure as Code (Terraform)
+*   **`terraform_eks`**: Terraform configuration for AWS Elastic Kubernetes Service with VPC, node groups, and auto-scaling
+*   **`terraform_aks`**: Terraform configuration for Azure Kubernetes Service with VNet, monitoring, and auto-scaling
+*   **`terraform_gke`**: Terraform configuration for Google Kubernetes Engine with VPC, private nodes, and Workload Identity
+
 ## Available MCP Tools
 
 ### Project Management Tools
@@ -252,6 +292,9 @@ Build a microservices architecture:
 
 *   **`run_python_command(command, cwd)`**  
     Execute Python commands safely (pip, scripts, etc.)
+
+*   **`run_terraform_command(command, cwd)`**  
+    Execute Terraform commands safely (init, plan, apply, destroy, etc.)
 
 *   **`run_command(command, cwd, input)`**  
     Generic command runner with optional input for interactive prompts

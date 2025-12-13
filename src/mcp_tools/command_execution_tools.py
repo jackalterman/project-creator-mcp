@@ -1048,6 +1048,81 @@ def test_web_application(
         }
 
 @mcp.tool()
+def run_terraform_command(command: str, cwd: str = ".", input: str = None) -> Dict[str, Any]:
+    """
+    Execute Terraform commands safely.
+    
+    Args:
+        command: Terraform command to run (e.g., 'init', 'plan', 'apply -auto-approve', 'destroy')
+        cwd: Working directory (default: current directory)
+        input: Optional input text to send to the command (stdin)
+        
+    Returns:
+        Dictionary with command results
+    """
+    # Validate path safety
+    is_safe, message = is_safe_path(cwd)
+    if not is_safe:
+        return {
+            "success": False,
+            "error": f"Working directory blocked: {message}"
+        }
+    
+    # Check if cwd exists
+    if not os.path.isdir(cwd):
+        return {
+            "success": False,
+            "error": f"Working directory does not exist: {cwd}"
+        }
+    
+    # Validate Terraform command
+    allowed_terraform_commands = [
+        'init', 'plan', 'apply', 'destroy', 'validate', 'fmt',
+        'output', 'show', 'state', 'refresh', 'import', 'taint',
+        'untaint', 'workspace', 'version', '--version', 'providers',
+        'graph', 'console'
+    ]
+    
+    command_parts = command.split()
+    base_cmd = command_parts[0] if command_parts else ""
+    
+    if base_cmd not in allowed_terraform_commands:
+        return {
+            "success": False,
+            "error": f"Terraform command not allowed: {base_cmd}",
+            "allowed_commands": allowed_terraform_commands
+        }
+    
+    # Create safe environment
+    env = create_safe_env()
+    
+    try:
+        result = run_command_with_timeout(
+            f"terraform {command}",
+            shell=True,
+            cwd=cwd,
+            timeout=get_timeout_value() * 10,  # Terraform operations can take very long
+            env=env,
+            input_text=input
+        )
+        
+        return {
+            "success": not result["timed_out"] and result["returncode"] == 0,
+            "output": result["stdout"].strip(),
+            "error": result["stderr"].strip() if result["stderr"] else None,
+            "return_code": result["returncode"],
+            "command": f"terraform {command}",
+            "working_directory": cwd,
+            "timed_out": result["timed_out"]
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Failed to run Terraform command: {str(e)}"
+        }
+
+@mcp.tool()
 def initialize_git_repository(path: str = ".") -> Dict[str, Any]:
     """
     Initialize a Git repository in the specified directory.

@@ -76,7 +76,10 @@ def create_project_from_template(
         "docker-node": ProjectTemplates.DOCKER_NODE,
         "docker-go": ProjectTemplates.DOCKER_GO,
         "docker-compose-simple": ProjectTemplates.DOCKER_COMPOSE_SIMPLE,
-        "docker-compose-full-stack": ProjectTemplates.DOCKER_COMPOSE_FULL_STACK
+        "docker-compose-full-stack": ProjectTemplates.DOCKER_COMPOSE_FULL_STACK,
+        "terraform-eks": ProjectTemplates.TERRAFORM_EKS,
+        "terraform-aks": ProjectTemplates.TERRAFORM_AKS,
+        "terraform-gke": ProjectTemplates.TERRAFORM_GKE
     }
     
     if template_name not in templates:
@@ -628,7 +631,10 @@ def list_available_templates() -> Dict[str, Any]:
         "docker-node": ProjectTemplates.DOCKER_NODE,
         "docker-go": ProjectTemplates.DOCKER_GO,
         "docker-compose-simple": ProjectTemplates.DOCKER_COMPOSE_SIMPLE,
-        "docker-compose-full-stack": ProjectTemplates.DOCKER_COMPOSE_FULL_STACK
+        "docker-compose-full-stack": ProjectTemplates.DOCKER_COMPOSE_FULL_STACK,
+        "terraform-eks": ProjectTemplates.TERRAFORM_EKS,
+        "terraform-aks": ProjectTemplates.TERRAFORM_AKS,
+        "terraform-gke": ProjectTemplates.TERRAFORM_GKE
     }
     
     template_list = []
