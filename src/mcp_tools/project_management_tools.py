@@ -79,7 +79,12 @@ def create_project_from_template(
         "docker-compose-full-stack": ProjectTemplates.DOCKER_COMPOSE_FULL_STACK,
         "terraform-eks": ProjectTemplates.TERRAFORM_EKS,
         "terraform-aks": ProjectTemplates.TERRAFORM_AKS,
-        "terraform-gke": ProjectTemplates.TERRAFORM_GKE
+        "terraform-gke": ProjectTemplates.TERRAFORM_GKE,
+        "python-streamlit": ProjectTemplates.PYTHON_STREAMLIT,
+        "python-typer": ProjectTemplates.PYTHON_TYPER,
+        "python-jupyter": ProjectTemplates.PYTHON_JUPYTER,
+        "python-textual": ProjectTemplates.PYTHON_TEXTUAL,
+        "python-crewai": ProjectTemplates.PYTHON_CREWAI
     }
     
     if template_name not in templates:
@@ -634,7 +639,12 @@ def list_available_templates() -> Dict[str, Any]:
         "docker-compose-full-stack": ProjectTemplates.DOCKER_COMPOSE_FULL_STACK,
         "terraform-eks": ProjectTemplates.TERRAFORM_EKS,
         "terraform-aks": ProjectTemplates.TERRAFORM_AKS,
-        "terraform-gke": ProjectTemplates.TERRAFORM_GKE
+        "terraform-gke": ProjectTemplates.TERRAFORM_GKE,
+        "python-streamlit": ProjectTemplates.PYTHON_STREAMLIT,
+        "python-typer": ProjectTemplates.PYTHON_TYPER,
+        "python-jupyter": ProjectTemplates.PYTHON_JUPYTER,
+        "python-textual": ProjectTemplates.PYTHON_TEXTUAL,
+        "python-crewai": ProjectTemplates.PYTHON_CREWAI
     }
     
     template_list = []

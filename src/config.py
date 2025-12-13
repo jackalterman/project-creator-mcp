@@ -10,7 +10,7 @@ class SecurityConfig:
         '.py', '.html', '.css', '.scss', '.sass', '.less',
         '.yml', '.yaml', '.xml', '.csv', '.env', '.gitignore',
         '.dockerfile', '.dockerignore', '.sql', '.sh', '.bat',
-        '.ps1', '.toml', '.ini', '.cfg', '.conf'
+        '.ps1', '.toml', '.ini', '.cfg', '.conf', '.tscc', 'tfvars'
     }
     
     # Restricted directories

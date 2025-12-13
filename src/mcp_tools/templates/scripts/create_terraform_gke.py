@@ -102,8 +102,9 @@ resource "google_container_cluster" "primary" {
 
   # Network policy
   network_policy {
-    enabled  = true
-    provider = "PROVIDER_UNSPECIFIED"
+    enabled = true
+    # Recommended provider: 'CALICO'
+    provider = "CALICO"
   }
 
   # Enable binary authorization
@@ -189,6 +190,8 @@ resource "google_container_node_pool" "primary_nodes" {
   }
 
   node_config {
+    # Use a secure, maintained GKE node image
+    image_type   = "COS_CONTAINERD"
     preemptible  = var.preemptible
     machine_type = var.machine_type
     disk_size_gb = var.disk_size_gb

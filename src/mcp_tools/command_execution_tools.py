@@ -296,7 +296,7 @@ def run_python_command(command: str, cwd: str = ".", input: str = None) -> Dict[
     # Validate Python command
     allowed_python_commands = [
         'pip', 'python', 'python3', 'pytest', 'black', 'flake8',
-        'mypy', 'pylint', 'isort', 'coverage'
+        'mypy', 'pylint', 'isort', 'coverage', 'uv', 'uvx'
     ]
     
     try:
@@ -518,22 +518,50 @@ def run_command(command: str, cwd: str = ".", input: str = None) -> Dict[str, An
     
     # Security: Prevent command chaining and execution of untrusted code
     # This prevents "Get-Item . ; rm -rf /" or similar injections since shell=True
-    unsafe_patterns = [';', '&', '|', '`', '$(']
+    # Also blocks '(' and ')' to prevent PowerShell sub-expressions like: Get-Item (Start-Process malicious)
+    unsafe_patterns = [';', '&', '|', '`', '$(', '(', ')']
     if any(pattern in command for pattern in unsafe_patterns):
         return {
             "success": False,
             "error": "Command contains unsafe patterns (chaining or subshells). Only single commands are allowed."
         }
     
+    # Identify PowerShell-specific commands
+    powershell_commands = [
+        'Get-ChildItem', 'gci',
+        'Get-Content', 'gc',
+        'Get-Location', 'gl',
+        'Get-Date',
+        'Get-Process',
+        'Get-Service',
+        'Get-Item',
+        'Select-String', 'sls',
+        'Measure-Object',
+        'Test-Path'
+    ]
+
     try:
-        result = run_command_with_timeout(
-            command,
-            shell=True,
-            cwd=cwd,
-            timeout=get_timeout_value(),
-            env=create_safe_env(),
-            input_text=input
-        )
+        # On Windows, strictly PowerShell commands need to be run via powershell.exe
+        # cmd.exe (used by shell=True) does not recognize them.
+        if os.name == 'nt' and base_cmd in powershell_commands:
+            cmd_list = ["powershell", "-NoProfile", "-NonInteractive", "-Command", command]
+            result = run_command_with_timeout(
+                cmd_list,
+                shell=False,
+                cwd=cwd,
+                timeout=get_timeout_value(),
+                env=create_safe_env(),
+                input_text=input
+            )
+        else:
+            result = run_command_with_timeout(
+                command,
+                shell=True,
+                cwd=cwd,
+                timeout=get_timeout_value(),
+                env=create_safe_env(),
+                input_text=input
+            )
         
         return {
             "success": not result["timed_out"] and result["returncode"] == 0,

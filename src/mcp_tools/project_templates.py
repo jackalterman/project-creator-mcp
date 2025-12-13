@@ -3,11 +3,6 @@ import json
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), 'templates')
 
-import os
-import json
-
-TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), 'templates')
-
 class ProjectTemplates:
     '''Pre-defined project templates for common development scenarios.'''
     
