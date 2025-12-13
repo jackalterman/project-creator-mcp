@@ -486,8 +486,24 @@ def run_command(command: str, cwd: str = ".", input: str = None) -> Dict[str, An
     
     # Basic command validation - only allow safe, non-interactive commands
     safe_commands = [
+        # Cross-platform / Linux common
         'echo', 'ls', 'pwd', 'whoami', 'date', 'cat', 'head', 'tail',
-        'wc', 'grep', 'find', 'which', 'type', 'env', 'dir'
+        'wc', 'grep', 'find', 'which', 'type', 'env', 'ps',
+        
+        # Windows specific
+        'dir',
+        
+        # PowerShell Safe Cmdlets & Aliases
+        'Get-ChildItem', 'gci',
+        'Get-Content', 'gc',
+        'Get-Location', 'gl',
+        'Get-Date',
+        'Get-Process',
+        'Get-Service',
+        'Get-Item',
+        'Select-String', 'sls',
+        'Measure-Object',
+        'Test-Path'
     ]
     
     command_parts = command.split()
@@ -498,6 +514,15 @@ def run_command(command: str, cwd: str = ".", input: str = None) -> Dict[str, An
             "success": False,
             "error": f"Command not allowed: {base_cmd}. Use specific tool functions for python, npm, or go commands.",
             "allowed_commands": safe_commands
+        }
+    
+    # Security: Prevent command chaining and execution of untrusted code
+    # This prevents "Get-Item . ; rm -rf /" or similar injections since shell=True
+    unsafe_patterns = [';', '&', '|', '`', '$(']
+    if any(pattern in command for pattern in unsafe_patterns):
+        return {
+            "success": False,
+            "error": "Command contains unsafe patterns (chaining or subshells). Only single commands are allowed."
         }
     
     try:
