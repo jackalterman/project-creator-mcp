@@ -165,3 +165,24 @@ class ProjectTemplates:
         "command": "python \"{templates_dir}/scripts/create_terraform_gke.py\" {project_name}"
     }
 
+    PYTHON_STREAMLIT = {
+        "name": "Python Streamlit",
+        "description": "Interactive data app with Streamlit",
+        "type": "command_based",
+        "command": "python \"{templates_dir}/scripts/create_streamlit.py\" {project_name}"
+    }
+
+    PYTHON_TYPER = {
+        "name": "Python Typer CLI",
+        "description": "Modern CLI application with Typer and Rich",
+        "type": "command_based",
+        "command": "python \"{templates_dir}/scripts/create_typer.py\" {project_name}"
+    }
+
+    PYTHON_JUPYTER = {
+        "name": "Python Jupyter Data Science",
+        "description": "Data Science project with Jupyter, Pandas, and Matplotlib",
+        "type": "command_based",
+        "command": "python \"{templates_dir}/scripts/create_jupyter.py\" {project_name}"
+    }
+
