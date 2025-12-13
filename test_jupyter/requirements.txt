@@ -1,5 +1,0 @@
-jupyterlab
-pandas
-matplotlib
-scikit-learn
-seaborn
