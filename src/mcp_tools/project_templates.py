@@ -186,3 +186,17 @@ class ProjectTemplates:
         "command": "python \"{templates_dir}/scripts/create_jupyter.py\" {project_name}"
     }
 
+    PYTHON_TEXTUAL = {
+        "name": "Python Textual TUI",
+        "description": "Modern Terminal User Interface application",
+        "type": "command_based",
+        "command": "python \"{templates_dir}/scripts/create_textual.py\" {project_name}"
+    }
+
+    PYTHON_CREWAI = {
+        "name": "Python CrewAI Agents",
+        "description": "Multi-agent system with CrewAI",
+        "type": "command_based",
+        "command": "python \"{templates_dir}/scripts/create_crewai.py\" {project_name}"
+    }
+
