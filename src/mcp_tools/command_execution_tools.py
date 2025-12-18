@@ -518,12 +518,30 @@ def run_command(command: str, cwd: str = ".", input: str = None) -> Dict[str, An
     
     # Security: Prevent command chaining and execution of untrusted code
     # This prevents "Get-Item . ; rm -rf /" or similar injections since shell=True
-    # Also blocks '(' and ')' to prevent PowerShell sub-expressions like: Get-Item (Start-Process malicious)
-    unsafe_patterns = [';', '&', '|', '`', '$(', '(', ')']
-    if any(pattern in command for pattern in unsafe_patterns):
+    import re
+    
+    # Remove all quoted strings (both single and double quotes) from the command first
+    # This allows special characters within quotes to be safe
+    temp_command = command
+    # Remove double-quoted strings
+    temp_command = re.sub(r'"[^"]*"', '', temp_command)
+    # Remove single-quoted strings  
+    temp_command = re.sub(r"'[^']*'", '', temp_command)
+    
+    # Now check for dangerous patterns in the remaining (unquoted) parts
+    # Block command chaining operators
+    if any(pattern in temp_command for pattern in [';', '&', '|', '`']):
         return {
             "success": False,
-            "error": "Command contains unsafe patterns (chaining or subshells). Only single commands are allowed."
+            "error": "Command contains unsafe patterns (chaining operators). Only single commands are allowed."
+        }
+    
+    # Block PowerShell subshell/subexpression patterns
+    # Check for PowerShell subexpression syntax: $(...) or unquoted (...)
+    if '$(' in temp_command or '(' in temp_command or ')' in temp_command:
+        return {
+            "success": False,
+            "error": "Command contains unsafe patterns (unquoted parentheses or subshells). Only single commands are allowed."
         }
     
     # Identify PowerShell-specific commands
