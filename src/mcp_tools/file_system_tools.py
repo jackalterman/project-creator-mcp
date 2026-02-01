@@ -13,19 +13,8 @@ from .mcp_instance import mcp
 
 
 
-@mcp.tool()
-def create_file(path: str, content: str, overwrite: bool = False) -> Dict[str, Any]:
-    """
-    Create a file with specified content.
-    
-    Args:
-        path: File path to create
-        content: Content to write to the file
-        overwrite: Whether to overwrite if file exists (default: False)
-        
-    Returns:
-        Dictionary with operation results
-    """
+def _create_file_internal(path: str, content: str, overwrite: bool = False) -> Dict[str, Any]:
+    """Internal implementation for creating files."""
     # Validate path safety
     is_safe, message = is_safe_path(path)
     if not is_safe:
@@ -86,6 +75,82 @@ def create_file(path: str, content: str, overwrite: bool = False) -> Dict[str, A
         return {
             "success": False,
             "error": f"Failed to create file: {str(e)}"
+        }
+
+@mcp.tool()
+def create_file(path: str, content: str, overwrite: bool = False) -> Dict[str, Any]:
+    """
+    Create a file with specified content.
+    
+    Args:
+        path: File path to create
+        content: Content to write to the file
+        overwrite: Whether to overwrite if file exists (default: False)
+        
+    Returns:
+        Dictionary with operation results
+    """
+    return _create_file_internal(path, content, overwrite)
+
+@mcp.tool()
+def write_file(path: str, content: str, overwrite: bool = False) -> Dict[str, Any]:
+    """
+    Write content to a file (alias for create_file).
+    
+    Args:
+        path: File path to write
+        content: Content to write to the file
+        overwrite: Whether to overwrite if file exists (default: False)
+        
+    Returns:
+        Dictionary with operation results
+    """
+    return _create_file_internal(path, content, overwrite)
+
+@mcp.tool()
+def delete_file(path: str) -> Dict[str, Any]:
+    """
+    Delete a file.
+    
+    Args:
+        path: File path to delete
+        
+    Returns:
+        Dictionary with operation results
+    """
+    # Validate path safety
+    is_safe, message = is_safe_path(path)
+    if not is_safe:
+        return {
+            "success": False,
+            "error": f"Path blocked for security: {message}"
+        }
+    
+    try:
+        if not os.path.exists(path):
+            return {
+                "success": False,
+                "error": "File not found"
+            }
+            
+        if not os.path.isfile(path):
+            return {
+                "success": False,
+                "error": "Path is not a file"
+            }
+            
+        os.remove(path)
+        
+        return {
+            "success": True,
+            "message": f"File deleted successfully: {path}",
+            "path": path
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Failed to delete file: {str(e)}"
         }
 
 @mcp.tool()

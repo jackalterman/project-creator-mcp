@@ -34,6 +34,8 @@ def create_safe_env():
     # Disable npm interactive features
     env['CI'] = 'true'
     env['NODE_ENV'] = 'production'
+    # Force Python to use UTF-8 for IO
+    env['PYTHONIOENCODING'] = 'utf-8'
     return env
 
 def run_command_with_timeout(cmd, shell=False, cwd=".", timeout=None, env=None, input_text=None):
@@ -56,6 +58,8 @@ def run_command_with_timeout(cmd, shell=False, cwd=".", timeout=None, env=None, 
                 stderr=subprocess.PIPE,
                 stdin=subprocess.PIPE if input_text else subprocess.DEVNULL,
                 text=True,
+                encoding='utf-8',
+                errors='replace',
                 cwd=cwd,
                 env=env,
                 preexec_fn=os.setsid if hasattr(os, 'setsid') else None
@@ -67,6 +71,8 @@ def run_command_with_timeout(cmd, shell=False, cwd=".", timeout=None, env=None, 
                 stderr=subprocess.PIPE,
                 stdin=subprocess.PIPE if input_text else subprocess.DEVNULL,
                 text=True,
+                encoding='utf-8',
+                errors='replace',
                 cwd=cwd,
                 env=env,
                 preexec_fn=os.setsid if hasattr(os, 'setsid') else None
@@ -380,8 +386,8 @@ def run_python_command(command: str, cwd: str = ".", input: str = None) -> Dict[
         
         return {
             "success": not result["timed_out"] and result["returncode"] == 0,
-            "output": result["stdout"].strip(),
-            "error": result["stderr"].strip() if result["stderr"] else None,
+            "output": (result["stdout"] or "").strip(),
+            "error": (result["stderr"] or "").strip(),
             "return_code": result["returncode"],
             "command": command,
             "working_directory": cwd,
@@ -461,6 +467,86 @@ def run_go_command(command: str, cwd: str = ".", input: str = None) -> Dict[str,
         return {
             "success": False,
             "error": f"Failed to run Go command: {str(e)}"
+        }
+
+@mcp.tool()
+def run_git_command(command: str, cwd: str = ".", input: str = None) -> Dict[str, Any]:
+    """
+    Execute git commands safely.
+    
+    Args:
+        command: Git command to run (e.g., 'status', 'add .', 'commit -m "msg"')
+        cwd: Working directory (default: current directory)
+        input: Optional input text to send to the command (stdin)
+        
+    Returns:
+        Dictionary with command results
+    """
+    # Validate path safety
+    is_safe, message = is_safe_path(cwd)
+    if not is_safe:
+        return {
+            "success": False,
+            "error": f"Working directory blocked: {message}"
+        }
+    
+    # Check if cwd exists
+    if not os.path.isdir(cwd):
+        return {
+            "success": False,
+            "error": f"Working directory does not exist: {cwd}"
+        }
+    
+    # Validate Git command
+    allowed_git_commands = [
+        'status', 'add', 'commit', 'push', 'pull', 'init', 'clone', 
+        'checkout', 'branch', 'merge', 'diff', 'log', 'remote', 'config',
+        'fetch', 'reset', 'stash', 'tag', 'show', 'blame'
+    ]
+    
+    try:
+        command_parts = shlex.split(command, posix=False)
+        # Strip quotes
+        command_parts = [part.strip('"').strip("'") for part in command_parts]
+    except ValueError:
+        command_parts = command.split()
+    
+    base_cmd = command_parts[0] if command_parts else ""
+
+    if base_cmd not in allowed_git_commands:
+        return {
+            "success": False,
+            "error": f"Git command not allowed: {base_cmd}",
+            "allowed_commands": allowed_git_commands
+        }
+    
+    # Create safe environment
+    env = create_safe_env()
+    
+    try:
+        result = run_command_with_timeout(
+            f"git {command}",
+            shell=True,
+            cwd=cwd,
+            timeout=get_timeout_value() * 2,
+            env=env,
+            input_text=input
+        )
+        
+        return {
+            "success": not result["timed_out"] and result["returncode"] == 0,
+            "output": (result["stdout"] or "").strip(),
+            "error": (result["stderr"] or "").strip(),
+            "return_code": result["returncode"],
+            "command": f"git {command}",
+            "working_directory": cwd,
+            "timed_out": result["timed_out"]
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Failed to run git command: {str(e)}"
         }
 
 @mcp.tool()

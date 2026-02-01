@@ -268,7 +268,13 @@ Build a microservices architecture:
 ### File System Tools
 
 *   **`create_file(path, content, overwrite)`**  
-    Create a file with specified content
+    Create a file with specified content (supports dotfiles like .gitignore)
+
+*   **`write_file(path, content, overwrite)`**
+    Alias for create_file
+
+*   **`delete_file(path)`**
+    Delete a file
 
 *   **`read_file(path)`**  
     Read and return file contents
@@ -298,6 +304,9 @@ Build a microservices architecture:
 
 *   **`run_command(command, cwd, input)`**  
     Generic command runner with optional input for interactive prompts
+
+*   **`run_git_command(command, cwd)`**
+    Execute git commands safely (status, add, commit, etc.)
 
 *   **`initialize_git_repository(path)`**  
     Initialize a Git repository in the specified directory

@@ -16,7 +16,11 @@ def is_safe_path(path: str) -> tuple[bool, str]:
 
 def is_safe_filename(filename: str) -> tuple[bool, str]:
     """Validate if a filename is safe."""
-    if not filename or filename.startswith('.'):
+    if not filename:
+        return False, "Invalid filename"
+        
+    # Allow dotfiles (like .gitignore) but block current/parent directory references
+    if filename == '.' or filename == '..':
         return False, "Invalid filename"
     
     # Check for dangerous characters
