@@ -195,3 +195,17 @@ class ProjectTemplates:
         "command": "python \"{templates_dir}/scripts/create_crewai.py\" {project_name}"
     }
 
+    CPP_CMAKE = {
+        "name": "C++ CMake Project",
+        "description": "C++17 project with CMake build system, src/include/tests structure",
+        "type": "command_based",
+        "command": "python \"{templates_dir}/scripts/create_cpp.py\" {project_name} --type cmake"
+    }
+
+    CPP_CONSOLE = {
+        "name": "C++ Console App",
+        "description": "Minimal single-file C++17 console application with CMake",
+        "type": "command_based",
+        "command": "python \"{templates_dir}/scripts/create_cpp.py\" {project_name} --type console"
+    }
+

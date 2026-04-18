@@ -84,7 +84,9 @@ def create_project_from_template(
         "python-typer": ProjectTemplates.PYTHON_TYPER,
         "python-jupyter": ProjectTemplates.PYTHON_JUPYTER,
         "python-textual": ProjectTemplates.PYTHON_TEXTUAL,
-        "python-crewai": ProjectTemplates.PYTHON_CREWAI
+        "python-crewai": ProjectTemplates.PYTHON_CREWAI,
+        "cpp-cmake": ProjectTemplates.CPP_CMAKE,
+        "cpp-console": ProjectTemplates.CPP_CONSOLE
     }
     
     if template_name not in templates:
@@ -644,7 +646,9 @@ def list_available_templates() -> Dict[str, Any]:
         "python-typer": ProjectTemplates.PYTHON_TYPER,
         "python-jupyter": ProjectTemplates.PYTHON_JUPYTER,
         "python-textual": ProjectTemplates.PYTHON_TEXTUAL,
-        "python-crewai": ProjectTemplates.PYTHON_CREWAI
+        "python-crewai": ProjectTemplates.PYTHON_CREWAI,
+        "cpp-cmake": ProjectTemplates.CPP_CMAKE,
+        "cpp-console": ProjectTemplates.CPP_CONSOLE
     }
     
     template_list = []
