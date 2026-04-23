@@ -11,7 +11,7 @@ class SecurityConfig:
         '.yml', '.yaml', '.xml', '.csv', '.env', '.gitignore',
         '.dockerfile', '.dockerignore', '.sql', '.sh', '.bat',
         '.ps1', '.toml', '.ini', '.cfg', '.conf', '.tcss', 'tfvars',
-        '.cpp', '.cc', '.cxx', '.c', '.h', '.hpp', '.hxx', '.cmake', '.rc'
+        '.cpp', '.cc', '.cxx', '.c', '.h', '.hpp', '.hxx', '.cmake', '.rc', '.rs', '.go',
     }
     
     # Restricted directories
