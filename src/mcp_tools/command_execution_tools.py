@@ -501,7 +501,7 @@ def run_git_command(command: str, cwd: str = ".", input: str = None) -> Dict[str
     allowed_git_commands = [
         'status', 'add', 'commit', 'push', 'pull', 'init', 'clone', 
         'checkout', 'branch', 'merge', 'diff', 'log', 'remote', 'config',
-        'fetch', 'reset', 'stash', 'tag', 'show', 'blame'
+        'fetch', 'reset', 'stash', 'tag', 'show', 'blame', 'grep'
     ]
     
     try:
