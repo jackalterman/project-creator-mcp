@@ -273,11 +273,11 @@ Build a microservices architecture:
 *   **`write_file(path, content, overwrite)`**
     Alias for create_file
 
-*   **`delete_file(path)`**
-    Delete a file
+*   **`delete_file(path, permanent, dry_run)`**
+    Delete a file. By default it is moved to a recoverable trash (see `list_trash` / `restore_from_trash`); pass `permanent=True` to delete for good, or `dry_run=True` to preview
 
-*   **`read_file(path)`**  
-    Read and return file contents
+*   **`read_file(path, start_line, end_line, line_numbers)`**  
+    Read file contents. Optionally read only a 1-based inclusive line range (and prefix line numbers) so large files don't have to be read whole; the result includes `total_lines` and `has_more`
 
 *   **`create_directory(path)`**  
     Create a directory (creates parent directories if needed)
@@ -289,7 +289,40 @@ Build a microservices architecture:
     Copy a file or directory to a new location
 
 *   **`search_and_replace_in_file(file_path, search_pattern, replacement, use_regex)`**  
-    Search and replace text in a file (supports regex)
+    Search and replace text in a file (supports regex). Replaces *every* match; pass `dry_run=True` to see the match count first, or use `str_replace_in_file` for a safe unique-match edit
+
+### Search & Editing Tools
+
+*   **`search_files(pattern, path, glob, exclude_glob, use_regex, ignore_case, context_lines, max_results, files_only, exclude_dirs)`**  
+    Search file contents **without git**, so untracked and gitignored files are included (unlike `git grep`). Supports `**` globs (e.g. `["**/*.ts"]`), regex, context lines and a result cap. Skips `.git`, `node_modules`, `__pycache__` and `.pytest_cache` by default (pass `exclude_dirs=[]` to search everything) and skips binary/oversized files. **Credential files are always skipped** and cannot be re-enabled: `.env` (but not `.env.example`), `*.pem`, `*.key`, `id_rsa*`, `.npmrc` and similar, plus the `.ssh`, `.aws` and `.gnupg` directories. The count is reported as `secret_files_skipped`
+
+*   **`str_replace_in_file(path, old_str, new_str, replace_all, dry_run)`**  
+    Replace text but **fail unless `old_str` matches exactly once** (or `replace_all=True`). Returns a unified diff and preserves CRLF/LF line endings
+
+*   **`apply_edits(edits, dry_run)`**  
+    Apply a multi-hunk, multi-file patch **atomically**. `edits` is a list of `{path, old_str, new_str, replace_all?}`; every edit is validated in memory first and nothing is written if any one fails (the result names `failed_edit`). Edits in the same file apply in order
+
+*   **`move_path(source, destination, overwrite, dry_run)`**  
+    Move or rename a file or directory. Git-tracked files use `git mv` so rename history is preserved. A file cannot be renamed into an extension the write tools would refuse (e.g. `.exe`); keeping its existing extension is always allowed
+
+### Safety Tools (Trash & Checkpoints)
+
+*   **`list_trash(limit)`** / **`restore_from_trash(trash_id, overwrite, dry_run)`**  
+    Browse and recover files removed with `delete_file`. The trash lives in `~/.project-creator-mcp/trash` (override with the `PROJECT_CREATOR_TRASH` environment variable), outside your repo
+
+*   **`create_checkpoint(path, label)`**  
+    Snapshot the whole working tree of a git repo (tracked, modified **and untracked** files; gitignored files are not captured) under `refs/mcp-checkpoints/`. It never touches your working files, index, branches or stash list, so it is safe on a repo with uncommitted work
+
+*   **`list_checkpoints(path)`**  
+    List checkpoints, newest first
+
+*   **`restore_checkpoint(checkpoint_id, path, dry_run)`**  
+    Restore files to a checkpoint (reverts modified files, recreates deleted ones; files created afterwards are left in place). A safety checkpoint of the current state is saved first and returned as `undo_checkpoint`, so a restore can itself be undone
+
+### Check Tools
+
+*   **`run_checks(tool, cwd, args, timeout)`**  
+    Run `tsc`, `eslint`, `vitest` or `pytest` and get back **parsed failures** (`file`, `line`, `column`, `code`, `message`, `severity`) plus `passed`, `error_count` and `warning_count` instead of raw terminal output. If the tool itself fails to run, `raw_output_tail` is included for diagnosis
 
 ### Command Execution Tools
 

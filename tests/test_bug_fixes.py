@@ -24,17 +24,17 @@ def test_delete_file(temp_dir):
         file.write("bye")
     
     # Delete
-    result = delete_file.fn(f)
+    result = getattr(delete_file, "fn", delete_file)(f)
     assert result["success"]
     assert not os.path.exists(f)
     
     # Delete non-existent
-    result = delete_file.fn(f)
+    result = getattr(delete_file, "fn", delete_file)(f)
     assert not result["success"]
 
 def test_write_file(temp_dir):
     f = os.path.join(temp_dir, "written.txt")
-    result = write_file.fn(f, "content")
+    result = getattr(write_file, "fn", write_file)(f, "content")
     assert result["success"]
     assert os.path.exists(f)
     with open(f, 'r') as file:
@@ -49,11 +49,11 @@ def test_run_git_command(mock_run):
         "timed_out": False
     }
     
-    result = run_git_command.fn("status")
+    result = getattr(run_git_command, "fn", run_git_command)("status")
     assert result["success"]
     assert "On branch main" in result["output"]
     
     # Forbidden command
-    result = run_git_command.fn("rm file") # 'rm' not in allowed list
+    result = getattr(run_git_command, "fn", run_git_command)("rm file") # 'rm' not in allowed list
     assert not result["success"]
     assert "Git command not allowed" in result["error"]

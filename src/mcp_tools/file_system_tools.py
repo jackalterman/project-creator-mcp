@@ -3,14 +3,44 @@ import os
 import shutil
 import re
 from datetime import datetime
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 
 
 from .security import is_safe_path, is_safe_filename, get_file_extension
 from src.config import SecurityConfig
 from .mcp_instance import mcp
+from .safety_tools import move_to_trash
 
+
+
+def _read_line_range(path: str, content: str, start_line: Optional[int],
+                     end_line: Optional[int], line_numbers: bool) -> Dict[str, Any]:
+    """Slice already-read content to a 1-based inclusive line range."""
+    lines = content.splitlines()
+    total = len(lines)
+    start = 1 if start_line is None else start_line
+    end = total if end_line is None else end_line
+    if start < 1 or end < start:
+        return {"success": False, "error": "Invalid range: need 1 <= start_line <= end_line"}
+    if total and start > total:
+        return {"success": False, "error": f"start_line {start} is beyond end of file ({total} lines)"}
+    end = min(end, total)
+    selected = lines[start - 1:end]
+    if line_numbers:
+        text = "\n".join(f"{start + i}\t{line}" for i, line in enumerate(selected))
+    else:
+        text = "\n".join(selected)
+    return {
+        "success": True,
+        "content": text,
+        "path": path,
+        "start_line": start,
+        "end_line": end,
+        "total_lines": total,
+        "has_more": end < total,
+        "encoding": "utf-8"
+    }
 
 
 def _create_file_internal(path: str, content: str, overwrite: bool = False) -> Dict[str, Any]:
@@ -108,12 +138,14 @@ def write_file(path: str, content: str, overwrite: bool = False) -> Dict[str, An
     return _create_file_internal(path, content, overwrite)
 
 @mcp.tool()
-def delete_file(path: str) -> Dict[str, Any]:
+def delete_file(path: str, permanent: bool = False, dry_run: bool = False) -> Dict[str, Any]:
     """
     Delete a file.
     
     Args:
         path: File path to delete
+        permanent: Delete for good instead of moving to the recoverable trash (default: False)
+        dry_run: Report what would happen without deleting anything (default: False)
         
     Returns:
         Dictionary with operation results
@@ -139,6 +171,25 @@ def delete_file(path: str) -> Dict[str, Any]:
                 "error": "Path is not a file"
             }
             
+        if dry_run:
+            action = "permanently delete" if permanent else "move to trash"
+            return {
+                "success": True,
+                "dry_run": True,
+                "message": f"Would {action}: {path}",
+                "path": path
+            }
+
+        if not permanent:
+            meta = move_to_trash(path)
+            return {
+                "success": True,
+                "message": f"File moved to trash (recover with restore_from_trash): {path}",
+                "path": path,
+                "trash_id": meta["id"],
+                "recoverable": True
+            }
+
         os.remove(path)
         
         return {
@@ -154,12 +205,20 @@ def delete_file(path: str) -> Dict[str, Any]:
         }
 
 @mcp.tool()
-def read_file(path: str) -> Dict[str, Any]:
+def read_file(
+    path: str,
+    start_line: Optional[int] = None,
+    end_line: Optional[int] = None,
+    line_numbers: bool = False
+) -> Dict[str, Any]:
     """
     Read file contents.
     
     Args:
         path: File path to read
+        start_line: Optional first line to return (1-based, inclusive)
+        end_line: Optional last line to return (1-based, inclusive)
+        line_numbers: Prefix each returned line with its number (default: False)
         
     Returns:
         Dictionary with file contents and metadata
@@ -189,6 +248,9 @@ def read_file(path: str) -> Dict[str, Any]:
         
         with open(path, 'r', encoding='utf-8') as f:
             content = f.read()
+
+        if start_line is not None or end_line is not None or line_numbers:
+            return _read_line_range(path, content, start_line, end_line, line_numbers)
         
         return {
             "success": True,
@@ -374,7 +436,8 @@ def search_and_replace_in_file(
     file_path: str,
     search_pattern: str,
     replacement: str,
-    use_regex: bool = False
+    use_regex: bool = False,
+    dry_run: bool = False
 ) -> Dict[str, Any]:
     """
     Search and replace text in a file.
@@ -384,6 +447,7 @@ def search_and_replace_in_file(
         search_pattern: Text or regex pattern to search for
         replacement: Replacement text
         use_regex: Whether to use regex matching (default: False)
+        dry_run: Report how many matches would be replaced without writing (default: False)
         
     Returns:
         Dictionary with operation results
@@ -429,6 +493,16 @@ def search_and_replace_in_file(
             modified_content = original_content.replace(search_pattern, replacement)
             matches = original_content.count(search_pattern)
         
+        if dry_run:
+            return {
+                "success": True,
+                "dry_run": True,
+                "message": f"Would replace {matches} occurrences (nothing written)",
+                "file_path": file_path,
+                "matches_found": matches,
+                "use_regex": use_regex
+            }
+
         # Write modified content back to file
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(modified_content)

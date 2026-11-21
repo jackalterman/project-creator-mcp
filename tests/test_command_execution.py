@@ -11,7 +11,7 @@ def test_run_command_success(mock_run):
         "timed_out": False
     }
     
-    result = run_command.fn("echo test")
+    result = getattr(run_command, "fn", run_command)("echo test")
     assert result["success"]
     assert result["output"] == "success"
 
@@ -24,12 +24,12 @@ def test_run_command_fail(mock_run):
         "timed_out": False
     }
     
-    result = run_command.fn("ls nonexist")
+    result = getattr(run_command, "fn", run_command)("ls nonexist")
     assert not result["success"]
     assert result["error"] == "error"
 
 def test_run_command_blocked():
-    result = run_command.fn("rm -rf /")
+    result = getattr(run_command, "fn", run_command)("rm -rf /")
     assert not result["success"]
     assert "Command not allowed" in result["error"]
 
@@ -42,5 +42,5 @@ def test_run_python_command(mock_run):
         "timed_out": False
     }
     
-    result = run_python_command.fn("python --version")
+    result = getattr(run_python_command, "fn", run_python_command)("python --version")
     assert result["success"]

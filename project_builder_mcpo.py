@@ -21,6 +21,10 @@ from src.mcp_tools.security import *
 from src.mcp_tools.file_system_tools import *
 from src.mcp_tools.project_management_tools import *
 from src.mcp_tools.command_execution_tools import *
+from src.mcp_tools.search_tools import *
+from src.mcp_tools.edit_tools import *
+from src.mcp_tools.safety_tools import *
+from src.mcp_tools.check_tools import *
 from src.mcp_tools.mcp_instance import mcp
 
 if __name__ == "__main__":
